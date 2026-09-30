@@ -3,11 +3,11 @@ import { Banner } from './components/banner'
 import { ProductBox } from './components/product-box'
 import { Product } from './components/product'
 import { ActionButton } from './components/action-button.js'
-import {mockProducts} from '../mockData/data.js'
+// import {mockProducts} from '../mockData/data.js'
+import { sFetch } from './helpers/sFetch.js'
 import { AddProductForm } from './components/add-product-form.js'
-import type { NewProduct } from './types/products.js'
+import type { NewProduct } from './types/index.js'
 
-const HOST = "http://localhost:5001"
 //Change addformvisible to a togglable component
 // If there is a wrapper compnent, only the children will be re-rendered rather than the whole App
 // Keep state as low as possible
@@ -29,6 +29,7 @@ function App() {
     console.log('test')
     return await sFetch("/api/products");
   }
+
   const refreshProductList = async () => {
     getProductList().
     then((res) => {
@@ -36,6 +37,7 @@ function App() {
     }).
     catch((err) => console.log(err))    
   }
+
 
   useEffect(() => {
     refreshProductList()
@@ -46,7 +48,7 @@ function App() {
         <Banner></Banner>
       </header>
       <main>
-        <ProductBox productList={getProducts(productList.length !== 0 ? productList : mockProducts)}></ProductBox>
+        <ProductBox productList={getProducts(productList.length !== 0 ? productList : [], refreshProductList)}></ProductBox>
           {!addFormVisible && <p><ActionButton text='Add A Product' className='add-product-button'
           action={toggleForm}></ActionButton></p>}
           {addFormVisible && <AddProductForm addAction={addProduct} cancelAction={toggleForm}></AddProductForm>}
@@ -78,41 +80,14 @@ type ProductField = {
   quantity: number,
   price: number
 }
-function getProducts(productSource: ProductField[]): ReactElement[] {
+function getProducts(productSource: ProductField[], refresh: () => any): ReactElement[] {
   console.log(productSource)
 
   return productSource.map((obj: ProductField) => {
     return (
-      <Product stock={obj.quantity} price={obj.price} liKey={obj["_id"]} description={obj.title}></Product>
+      <Product stock={obj.quantity} price={obj.price} liKey={obj["_id"]} description={obj.title} refresh={() => refresh()}></Product>
     )
   })
   
 }
-
-type Fetch = <Tbody>(
-  path: string, 
-  method?: ("GET" | "POST" | "PUT" | "DELETE"), 
-  body?: Tbody
-) => Promise<{ok: boolean, result?: any}>
-
-const sFetch: Fetch = async (path, method, body) => {
-  const res = await fetch(HOST + path, {
-    method: method ?? "GET",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(body) ?? undefined
-  })
-
-  if (res?.ok) {
-    let jsonResult = await res.json();
-    console.log("sFetch log: ", jsonResult)
-    return {ok: true, result: jsonResult}
-  } else {
-    console.log('Bad input');
-    return {ok: false}
-  }
-
-}
-
 export default App

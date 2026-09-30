@@ -1,17 +1,33 @@
 import { ActionButton } from "./action-button"
 import { useState } from "react"
 import { EditProductForm } from "./edit-product-form"
+import { sFetch } from "../helpers/sFetch"
+import type { NewProduct } from '../types/index.js'
+
 type ProductArgs = {
     description: string,
     price: number,
     stock: number
-    liKey: string
+    liKey: string,
+    refresh: refresh
 }
 
+type refresh = () => any
+
 //Add editable product component
-export const Product = ({description, price, stock, liKey}: ProductArgs) => {
-    const [showEdit, setShowEdit] = useState(false)
-    const noStock = () => stock === 0
+export const Product = ({description, price, stock, liKey, refresh}: ProductArgs) => {
+    const [showEdit, setShowEdit] = useState(false);
+    const toggleForm = () => {setShowEdit(showEdit ? false: true)};
+
+    const noStock = () => stock === 0;
+    const addProduct = async ({title, price, quantity}: NewProduct) => {
+        await sFetch(`/api/products/${liKey}`, "PUT", {
+            title,
+            price,
+            quantity})
+
+        await refresh();
+    }
 
     return (
         <li className="product" key={liKey}>
@@ -27,7 +43,7 @@ export const Product = ({description, price, stock, liKey}: ProductArgs) => {
                     <span>X</span>
                 </button>
             </div>
-            {showEdit && <EditProductForm></EditProductForm>}
+            {showEdit && <EditProductForm liKey={liKey} addAction={addProduct} cancelAction={toggleForm}></EditProductForm>}
 
 
         </li>

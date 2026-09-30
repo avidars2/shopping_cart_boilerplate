@@ -24,7 +24,10 @@ export const AddProductForm = ({addAction, cancelAction}: AddProductForm) => {
     const handleSubmit = (event:React.SubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
         addAction(formData);
-        console.log("Product added")
+        console.log("Product added");
+        cancelAction();
+        setTimeout(() => document.getElementsByClassName('add-form')[0]
+        ?.scrollIntoView({"behavior": "smooth",  "block": "end"}), 100)
     }
 
     return (
