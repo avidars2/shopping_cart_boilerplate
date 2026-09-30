@@ -73,12 +73,13 @@ function App() {
   return (
     <>
       <header>
-        <Banner cartList={cartList}></Banner>
+        <Banner cartList={cartList}/>
       </header>
       <main>
-        <ProductBox productList={getProducts(productList.length !== 0 ? productList : [], updateRenderedProductList, addToCart)}></ProductBox>
+        <ProductBox productList={getProducts(productList.length !== 0 ? productList : []
+          , updateRenderedProductList, addToCart)}/>
           {!addFormVisible && <p><ActionButton text='Add A Product' className='add-product-button'
-          action={toggleForm}></ActionButton></p>}
+          action={toggleForm}/></p>}
           {addFormVisible && <AddProductForm addAction={addProduct} cancelAction={toggleForm}></AddProductForm>}
           
       </main>
