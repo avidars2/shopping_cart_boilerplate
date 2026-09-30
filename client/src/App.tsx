@@ -75,17 +75,28 @@ function App() {
         <Banner cartList={cartList}/>
       </header>
       <main>
-        <ProductBox productList={productList} updateRenderedProducts={updateRenderedProducts} addToCart={addToCart}/>
-          <Togglable 
-            component={<p><ActionButton text='Add A Product' className='add-product-button'
-              action={toggleForm}/></p>}
-            visible={!addFormVisible}
-          />
-          <Togglable 
-            component={<AddProductForm addAction={addProduct} cancelAction={toggleForm}/>} 
-            visible={addFormVisible}
-          />
-          
+        <ProductBox 
+          productList={productList} 
+          updateRenderedProducts={updateRenderedProducts} 
+          addToCart={addToCart}
+        />
+        <Togglable 
+          renderOpen={toggle => 
+          <p>
+            <ActionButton 
+            text='Add A Product' 
+            className='add-product-button' 
+            action={toggle}
+            />
+          </p>
+          }
+          renderClosed={toggle => 
+            <AddProductForm 
+              addAction={addProduct} 
+              cancelAction={toggle}
+          />}
+        />
+
       </main>
     </>
   )
