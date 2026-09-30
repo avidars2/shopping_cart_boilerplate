@@ -2,10 +2,10 @@ import type { NewProduct } from "../types"
 import { useState } from "react"
 interface EditProductForm {
     liKey: string,
-    addAction: (newProduct: NewProduct) => any
+    editAction: (newProduct: NewProduct) => any
     cancelAction: () => any
 }
-export const EditProductForm = ({addAction, cancelAction, liKey}: EditProductForm) => {
+export const EditProductForm = ({editAction, cancelAction, liKey}: EditProductForm) => {
     const [formData, setFormData] = useState({title: '', price: 0, quantity: 0})
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,7 +24,7 @@ export const EditProductForm = ({addAction, cancelAction, liKey}: EditProductFor
 
     const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
-        addAction(formData);
+        editAction(formData);
         console.log(`Product ${liKey} edited`);
         cancelAction();
     }

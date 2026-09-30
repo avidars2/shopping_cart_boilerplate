@@ -6,7 +6,7 @@ import { ActionButton } from './components/action-button.js'
 // import {mockProducts} from '../mockData/data.js'
 import { sFetch } from './helpers/sFetch.js'
 import { AddProductForm } from './components/add-product-form.js'
-import type { NewProduct } from './types/index.js'
+import type { NewProduct, AddToCartHandler, Methods, ProductField, UpdateProductList } from './types/index.js'
 
 //Change addformvisible to a togglable component
 // If there is a wrapper compnent, only the children will be re-rendered rather than the whole App
@@ -14,20 +14,36 @@ import type { NewProduct } from './types/index.js'
   //Have state (useState) be in a deeper component (not higher) where possible
 function App() {
   // console.log('hi')
-  const [addFormVisible, setIsAddFormVisible] = useState(false)
-  const [productList, setProductList] = useState([])
+  const [addFormVisible, setIsAddFormVisible] = useState(false);
+  const [productList, setProductList] = useState<ProductField[]>([]);
+  const [cartList, setCartList] = useState([]);
   const toggleForm = () => {setIsAddFormVisible(addFormVisible ? false: true)}
   const addProduct = async ({title, price, quantity}: NewProduct) => {
-    await sFetch("/api/products", "POST", {
+    const res = await sFetch("/api/products", "POST", {
         title,
         price,
         quantity})
-
-    await refreshProductList();
+    
+    if (res.ok) setProductList(productList.concat(res.result));
   }
   const getProductList = async () => {
     console.log('test')
     return await sFetch("/api/products");
+  }
+
+  const updateRenderedProductList = (action: Methods, {item, itemId }: {item?: ProductField, itemId: string}) => {
+    const getListWithoutItem = () => productList.filter((items: ProductField) => (items._id !== itemId));
+    console.log('updateRenderProductList invoked');
+    switch (action) {
+      case "DELETE":
+        setProductList(getListWithoutItem());
+        break;
+      case "PUT":
+        const filteredList = getListWithoutItem();
+        if (item) filteredList.push(item);
+        setProductList(filteredList);
+        break;
+    }
   }
 
   const refreshProductList = async () => {
@@ -38,17 +54,29 @@ function App() {
     catch((err) => console.log(err))    
   }
 
-
   useEffect(() => {
     refreshProductList()
   }, [])
+
+  const addToCart = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    //Capture event to get item targeted
+      // check quantity, if <=0 reject
+      //Lower cart quantity state
+      //
+
+    //Update cart
+    setCartList([]) //Put new state here 
+
+    //This should update App state, which re-renders the cart as well with the new state
+  }
+
   return (
     <>
       <header>
-        <Banner></Banner>
+        <Banner cartList={cartList}></Banner>
       </header>
       <main>
-        <ProductBox productList={getProducts(productList.length !== 0 ? productList : [], refreshProductList)}></ProductBox>
+        <ProductBox productList={getProducts(productList.length !== 0 ? productList : [], updateRenderedProductList, addToCart)}></ProductBox>
           {!addFormVisible && <p><ActionButton text='Add A Product' className='add-product-button'
           action={toggleForm}></ActionButton></p>}
           {addFormVisible && <AddProductForm addAction={addProduct} cancelAction={toggleForm}></AddProductForm>}
@@ -74,18 +102,16 @@ If it fails, the catch block runs and inputs are not reset, preserving user inpu
 
  */
 
-type ProductField = {
-  _id: string,
-  title: string,
-  quantity: number,
-  price: number
-}
-function getProducts(productSource: ProductField[], refresh: () => any): ReactElement[] {
+
+
+function getProducts(productSource: ProductField[], updateRenderedProductList: UpdateProductList, addToCart: AddToCartHandler): ReactElement[] {
   console.log(productSource)
 
   return productSource.map((obj: ProductField) => {
     return (
-      <Product stock={obj.quantity} price={obj.price} liKey={obj["_id"]} description={obj.title} refresh={() => refresh()}></Product>
+      <Product stock={obj.quantity} price={obj.price} 
+      liKey={obj["_id"]} description={obj.title} 
+      updateRenderedProductList={updateRenderedProductList} addToCart={addToCart}></Product>
     )
   })
   

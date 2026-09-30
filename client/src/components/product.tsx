@@ -1,32 +1,43 @@
 import { ActionButton } from "./action-button"
 import { useState } from "react"
-import { EditProductForm } from "./edit-product-form"
+import { EditProductForm } from "./product-edit-form.js"
 import { sFetch } from "../helpers/sFetch"
-import type { NewProduct } from '../types/index.js'
+import type { NewProduct, AddToCartHandler, UpdateProductList, ProductField } from '../types/index.js'
 
 type ProductArgs = {
     description: string,
     price: number,
     stock: number
     liKey: string,
-    refresh: refresh
+    updateRenderedProductList: UpdateProductList
+    addToCart: AddToCartHandler
 }
 
 type refresh = () => any
 
 //Add editable product component
-export const Product = ({description, price, stock, liKey, refresh}: ProductArgs) => {
+
+// Instead of invoking refresh below , jsut update the state in memory
+// Refresh product list in memory
+
+//Same with updating it in memory
+export const Product = ({description, price, stock, liKey, updateRenderedProductList, addToCart}: ProductArgs) => {
     const [showEdit, setShowEdit] = useState(false);
     const toggleForm = () => {setShowEdit(showEdit ? false: true)};
 
     const noStock = () => stock === 0;
-    const addProduct = async ({title, price, quantity}: NewProduct) => {
-        await sFetch(`/api/products/${liKey}`, "PUT", {
+    const editProduct = async ({title, price, quantity}: NewProduct) => {
+        const res = await sFetch(`/api/products/${liKey}`, "PUT", {
             title,
             price,
             quantity})
 
-        await refresh();
+        if (res.ok) updateRenderedProductList("PUT", {item: res.result, itemId: res.result["_id"]});
+    }
+
+    const deleteProduct = async () => {
+        await sFetch(`/api/products/${liKey}`, "DELETE");
+        updateRenderedProductList("DELETE", {itemId: liKey});
     }
 
     return (
@@ -36,14 +47,14 @@ export const Product = ({description, price, stock, liKey, refresh}: ProductArgs
                 <p className="price">{`$${price}`}</p>
                 <p className="quantity">{`${stock} left in stock`}</p>
                 <div className="actions product-actions">
-                    <button className="add-to-cart" disabled={noStock()}>Add to Cart</button>
+                    <button className="add-to-cart" onClick={addToCart} disabled={noStock()}>Add to Cart</button>
                     <ActionButton className="edit" text="Edit" action={() => {setShowEdit(!showEdit)}}></ActionButton>
                 </div>
-                <button className="delete-button">
+                <button className="delete-button" onClick={deleteProduct}>
                     <span>X</span>
                 </button>
             </div>
-            {showEdit && <EditProductForm liKey={liKey} addAction={addProduct} cancelAction={toggleForm}></EditProductForm>}
+            {showEdit && <EditProductForm liKey={liKey} editAction={editProduct} cancelAction={toggleForm}></EditProductForm>}
 
 
         </li>
