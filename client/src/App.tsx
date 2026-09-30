@@ -1,19 +1,18 @@
 import { useState, useEffect, type ReactElement } from 'react'
 import { Banner } from './components/banner'
 import { ProductBox } from './components/product-box'
-import { Product } from './components/product'
 import { ActionButton } from './components/action-button.js'
 // import {mockProducts} from '../mockData/data.js'
 import { sFetch } from './helpers/sFetch.js'
 import { AddProductForm } from './components/add-product-form.js'
 import type { NewProduct, AddToCartHandler, Methods, ProductField, UpdateProductList } from './types/index.js'
+import { Togglable } from './components/togglable.js'
 
 //Change addformvisible to a togglable component
 // If there is a wrapper compnent, only the children will be re-rendered rather than the whole App
 // Keep state as low as possible
   //Have state (useState) be in a deeper component (not higher) where possible
 function App() {
-  // console.log('hi')
   const [addFormVisible, setIsAddFormVisible] = useState(false);
   const [productList, setProductList] = useState<ProductField[]>([]);
   const [cartList, setCartList] = useState([]);
@@ -31,7 +30,7 @@ function App() {
     return await sFetch("/api/products");
   }
 
-  const updateRenderedProductList = (action: Methods, {item, itemId }: {item?: ProductField, itemId: string}) => {
+  const updateRenderedProducts = (action: Methods, {item, itemId }: {item?: ProductField, itemId: string}) => {
     const getListWithoutItem = () => productList.filter((items: ProductField) => (items._id !== itemId));
     console.log('updateRenderProductList invoked');
     switch (action) {
@@ -76,11 +75,16 @@ function App() {
         <Banner cartList={cartList}/>
       </header>
       <main>
-        <ProductBox productList={getProducts(productList.length !== 0 ? productList : []
-          , updateRenderedProductList, addToCart)}/>
-          {!addFormVisible && <p><ActionButton text='Add A Product' className='add-product-button'
-          action={toggleForm}/></p>}
-          {addFormVisible && <AddProductForm addAction={addProduct} cancelAction={toggleForm}></AddProductForm>}
+        <ProductBox productList={productList} updateRenderedProducts={updateRenderedProducts} addToCart={addToCart}/>
+          <Togglable 
+            component={<p><ActionButton text='Add A Product' className='add-product-button'
+              action={toggleForm}/></p>}
+            visible={!addFormVisible}
+          />
+          <Togglable 
+            component={<AddProductForm addAction={addProduct} cancelAction={toggleForm}/>} 
+            visible={addFormVisible}
+          />
           
       </main>
     </>
@@ -104,17 +108,4 @@ If it fails, the catch block runs and inputs are not reset, preserving user inpu
  */
 
 
-
-function getProducts(productSource: ProductField[], updateRenderedProductList: UpdateProductList, addToCart: AddToCartHandler): ReactElement[] {
-  console.log(productSource)
-
-  return productSource.map((obj: ProductField) => {
-    return (
-      <Product stock={obj.quantity} price={obj.price} 
-      liKey={obj["_id"]} description={obj.title} 
-      updateRenderedProductList={updateRenderedProductList} addToCart={addToCart}></Product>
-    )
-  })
-  
-}
 export default App

@@ -6,5 +6,5 @@ export interface Product {
 }
 
 export interface NewProduct {
-    title: string, price: number, quantity: number
+    "_id": string, title: string, price: number, quantity: number
 }

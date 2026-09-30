@@ -4,7 +4,7 @@ export const Togglable = ({component, visible}: {component: ReactElement, visibl
     const updateVisiblity = () => setVisibile(!isVisible);
 
     return (
-        <span hidden={isVisible}>
+        <span hidden={!visible}>
             {component}
         </span>
     )

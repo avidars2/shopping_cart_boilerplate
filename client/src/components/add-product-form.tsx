@@ -7,7 +7,7 @@ interface AddProductForm {
 
 export const AddProductForm = ({addAction, cancelAction}: AddProductForm) => {
 
-    const [formData, setFormData] = useState({title: '', price: 0, quantity: 0})
+    const [formData, setFormData] = useState({"_id": '', title: '', price: 0, quantity: 0})
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value

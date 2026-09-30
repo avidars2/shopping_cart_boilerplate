@@ -5,15 +5,10 @@ import { sFetch } from "../helpers/sFetch"
 import type { NewProduct, AddToCartHandler, UpdateProductList, ProductField } from '../types/index.js'
 
 type ProductArgs = {
-    description: string,
-    price: number,
-    stock: number
-    liKey: string,
-    updateRenderedProductList: UpdateProductList
+    product: NewProduct
+    updateRenderedProducts: UpdateProductList
     addToCart: AddToCartHandler
 }
-
-type refresh = () => any
 
 //Add editable product component
 
@@ -21,40 +16,44 @@ type refresh = () => any
 // Refresh product list in memory
 
 //Same with updating it in memory
-export const Product = ({description, price, stock, liKey, updateRenderedProductList, addToCart}: ProductArgs) => {
+export const Product = ({product, updateRenderedProducts, addToCart}: ProductArgs) => {
     const [showEdit, setShowEdit] = useState(false);
     const toggleForm = () => {setShowEdit(showEdit ? false: true)};
 
-    const noStock = () => stock === 0;
-    const editProduct = async ({title, price, quantity}: NewProduct) => {
-        const res = await sFetch(`/api/products/${liKey}`, "PUT", {
-            title,
-            price,
-            quantity})
+    const noStock = () => product.quantity === 0;
+    const editProduct = async (product: NewProduct) => {
+        const res = await sFetch(`/api/products/${product["_id"]}`, "PUT", {
+            title: product.title,
+            price:product.price,
+            quantity: product.quantity})
 
-        if (res.ok) updateRenderedProductList("PUT", {item: res.result, itemId: res.result["_id"]});
+        if (res.ok) updateRenderedProducts("PUT", {item: res.result, itemId: res.result["_id"]});
     }
 
     const deleteProduct = async () => {
-        await sFetch(`/api/products/${liKey}`, "DELETE");
-        updateRenderedProductList("DELETE", {itemId: liKey});
+        await sFetch(`/api/products/${product["_id"]}`, "DELETE");
+        updateRenderedProducts("DELETE", {itemId: product["_id"]});
     }
 
     return (
-        <li className="product" key={liKey}>
+        <li className="product">
             <div className="product-details">
-                <h3>{description}</h3>
-                <p className="price">{`$${price}`}</p>
-                <p className="quantity">{`${stock} left in stock`}</p>
+                <h3>{product.title}</h3>
+                <p className="price">{`$${product.price}`}</p>
+                <p className="quantity">{`${product.quantity} left in stock`}</p>
                 <div className="actions product-actions">
                     <button className="add-to-cart" onClick={addToCart} disabled={noStock()}>Add to Cart</button>
-                    <ActionButton className="edit" text="Edit" action={() => {setShowEdit(!showEdit)}}></ActionButton>
+                    <ActionButton 
+                        className="edit" 
+                        text="Edit" 
+                        action={() => {setShowEdit(!showEdit)}}
+                    />
                 </div>
                 <button className="delete-button" onClick={deleteProduct}>
                     <span>X</span>
                 </button>
             </div>
-            {showEdit && <EditProductForm liKey={liKey} editAction={editProduct} cancelAction={toggleForm}></EditProductForm>}
+            {showEdit && <EditProductForm liKey={product["_id"]} editAction={editProduct} cancelAction={toggleForm}/>}
 
 
         </li>
