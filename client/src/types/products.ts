@@ -4,3 +4,7 @@ export interface Product {
     stock: number
     liKey: string
 }
+
+export interface NewProduct {
+    title: string, price: number, quantity: number
+}

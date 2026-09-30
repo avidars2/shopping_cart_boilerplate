@@ -7,6 +7,8 @@ type ProductArgs = {
     stock: number
     liKey: string
 }
+
+//Add editable product component
 export const Product = ({description, price, stock, liKey}: ProductArgs) => {
     const [showEdit, setShowEdit] = useState(false)
     const noStock = () => stock === 0
