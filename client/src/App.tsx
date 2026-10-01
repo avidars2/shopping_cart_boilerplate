@@ -57,10 +57,10 @@ function App() {
     catch((err) => console.log(err))
   }, [])
 
-  const stupidAPI = (item: ProductField) => item.productId || item._id 
-  const isInCart = (item: ProductField) => cartList.find(cartItem => stupidAPI(cartItem) === item._id);
+  const parseActualItemId = (item: ProductField) => item.productId || item._id 
+  const isInCart = (item: ProductField) => cartList.find(cartItem => parseActualItemId(cartItem) === item._id);
   const replaceExistingItem = (newItem: ProductField, cart: ProductField[]) => { 
-    cart.splice(cart.findIndex(toRemove => stupidAPI(toRemove) === newItem._id), 1, newItem);
+    cart.splice(cart.findIndex(toRemove => parseActualItemId(toRemove) === newItem._id), 1, newItem);
   }
   const POSTCart = (productId: string) => {
     sFetch("/api/add-to-cart", "POST", {
@@ -81,7 +81,7 @@ function App() {
     //Find item in list
     // If in there, update quantity of CartItem to match it + quantity
     // Create copy of cartList, replace existing CartItem with new one
-    let cartItem = CartCopy.find(cartItem => stupidAPI(cartItem) === item._id);
+    let cartItem = CartCopy.find(cartItem => parseActualItemId(cartItem) === item._id);
     if (cartItem) {
       NewCartItem.quantity = cartItem.quantity + quantity;
       replaceExistingItem(NewCartItem, CartCopy);
