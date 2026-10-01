@@ -2,14 +2,15 @@ import { CartDetails } from "./cart-details"
 import type { Item } from "../types"
 
 type BannerArgs = {
-    cartList: Item[]
+    cartList: Item[],
+    onCheckout: () => any
 }
 
-export const Banner = ({cartList}: BannerArgs) => {
+export const Banner = ({cartList, onCheckout}: BannerArgs) => {
     return (
         <>
             <h1>The Shop!</h1>
-            <CartDetails itemsArr={cartList}></CartDetails>
+            <CartDetails itemsArr={cartList} onCheckout={onCheckout}></CartDetails>
         </>
     )
 }

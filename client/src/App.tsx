@@ -13,10 +13,9 @@ import { Togglable } from './components/togglable.js'
 // Keep state as low as possible
   //Have state (useState) be in a deeper component (not higher) where possible
 function App() {
-  const [addFormVisible, setIsAddFormVisible] = useState(false);
   const [productList, setProductList] = useState<ProductField[]>([]);
-  const [cartList, setCartList] = useState([]);
-  const toggleForm = () => {setIsAddFormVisible(addFormVisible ? false: true)}
+  const [cartList, setCartList] = useState<ProductField[]>([]);
+
   const addProduct = async ({title, price, quantity}: NewProduct) => {
     const res = await sFetch("/api/products", "POST", {
         title,
@@ -25,14 +24,9 @@ function App() {
     
     if (res.ok) setProductList(productList.concat(res.result));
   }
-  const getProductList = async () => {
-    console.log('test')
-    return await sFetch("/api/products");
-  }
 
   const updateRenderedProducts = (action: Methods, {item, itemId }: {item?: ProductField, itemId: string}) => {
     const getListWithoutItem = () => productList.filter((items: ProductField) => (items._id !== itemId));
-    console.log('updateRenderProductList invoked');
     switch (action) {
       case "DELETE":
         setProductList(getListWithoutItem());
@@ -45,34 +39,83 @@ function App() {
     }
   }
 
-  const refreshProductList = async () => {
-    getProductList().
+  useEffect(() => {
+    sFetch("/api/products").
     then((res) => {
+      console.log(res)
       if (res.ok) setProductList(res.result)
     }).
-    catch((err) => console.log(err))    
-  }
-
-  useEffect(() => {
-    refreshProductList()
+    catch((err) => console.log(err))
   }, [])
 
-  const addToCart = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    //Capture event to get item targeted
+  useEffect(() => {
+    sFetch("/api/cart").
+    then((res) => {
+      console.log(res)
+      if (res.ok) setCartList(res.result)
+    }).
+    catch((err) => console.log(err))
+  }, [])
+
+  const stupidAPI = (item: ProductField) => item.productId || item._id 
+  const isInCart = (item: ProductField) => cartList.find(cartItem => stupidAPI(cartItem) === item._id);
+  const replaceExistingItem = (newItem: ProductField, cart: ProductField[]) => { 
+    cart.splice(cart.findIndex(toRemove => stupidAPI(toRemove) === newItem._id), 1, newItem);
+  }
+  const POSTCart = (productId: string) => {
+    sFetch("/api/add-to-cart", "POST", {
+      productId
+    }).
+    then((res) => console.log(`Success!`, res.result)).
+    catch((res) => console.log(`Cart update failed`, res));
+  }
+
+  const POSTCheckout = () => {
+    sFetch("/api/checkout", "POST")
+    console.log('test')
+    setCartList([])
+  }
+  const updateCart = (item: ProductField, quantity: number) => {
+    const NewCartItem = {...item, quantity: 1};
+    const CartCopy = [...cartList];
+    //Find item in list
+    // If in there, update quantity of CartItem to match it + quantity
+    // Create copy of cartList, replace existing CartItem with new one
+    let cartItem = CartCopy.find(cartItem => stupidAPI(cartItem) === item._id);
+    if (cartItem) {
+      NewCartItem.quantity = cartItem.quantity + quantity;
+      replaceExistingItem(NewCartItem, CartCopy);
+
+    } else {
+      CartCopy.push(NewCartItem)
+    }
+
+    return CartCopy;
+  }
+  const addToCart = async (id: string) => {
+    //Pass to product, accept 'id'
+      // Look up item
+    let item = productList.find(item => item._id === id);
       // check quantity, if <=0 reject
-      //Lower cart quantity state
-      //
+    if (!item || item.quantity <= 0) return;
+    //Lower cart quantity state
+    item.quantity = item.quantity - 1;
+    //
 
     //Update cart
-    setCartList([]) //Put new state here 
+    if (isInCart(item)) {
+      updateCart(item, 1)
+    }
+    setCartList(() => updateCart(item, 1)) //Put new state here 
 
     //This should update App state, which re-renders the cart as well with the new state
+    POSTCart(item._id);
   }
 
   return (
     <>
       <header>
-        <Banner cartList={cartList}/>
+        <Banner cartList={cartList} onCheckout={POSTCheckout}/>
       </header>
       <main>
         <ProductBox 

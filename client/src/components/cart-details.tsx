@@ -1,12 +1,12 @@
-import type { Cart, Item }  from "../types"
+import type { Cart, ProductField }  from "../types"
 
-export const CartDetails = ({itemsArr}: (Cart)) => {
+export const CartDetails = ({itemsArr, onCheckout}: (Cart)) => {
     const noItems = () => itemsArr.length === 0;
     return (
         <div className="cart">
             <h2>Your Cart</h2>
-            {noItems() ? <EmptyCart></EmptyCart> : <CartWithItems itemsArr={itemsArr}></CartWithItems>}
-            <button className="checkout" disabled={noItems()}>Checkout</button>
+            {noItems() ? <EmptyCart/> : <CartWithItems itemsArr={itemsArr}/>}
+            <button className="checkout" onClick={onCheckout} disabled={noItems()}>Checkout</button>
         </div>
     )
 }
@@ -21,9 +21,10 @@ const EmptyCart = () => {
     )
 }
 
-const CartWithItems = ({itemsArr}: Cart) => {
-    const totalPrice = (itemsArr: Item[]) =>  {
-        itemsArr.reduce((total, item) => {
+const CartWithItems = ({itemsArr}: Omit<Cart, "onCheckout">) => {
+    const totalPrice = (itemsArr: ProductField[]) =>  {
+        return itemsArr.reduce((total, item) => {
+            console.log(total, item)
             return total + (item.price * item.quantity);
         }, 0)
     }
@@ -40,10 +41,10 @@ const CartWithItems = ({itemsArr}: Cart) => {
             <tbody>
                 {itemsArr.map(item => {
                     return (
-                        <tr>
-                            <td>{item.item}</td>
+                        <tr key={item._id}>
+                            <td>{item.title}</td>
                             <td>{item.quantity}</td>
-                            <td>{item.price}</td>
+                            <td>${item.price * item.quantity}</td>
                         </tr>
                     )
                 })}

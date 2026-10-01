@@ -1,9 +1,12 @@
 export interface Cart  {
-    itemsArr: Item[]
+    onCheckout: () => any,
+    itemsArr: Item[],
 }
 
 export interface Item  {
-    item: string;
+    _id: string,
+    productId: string,
+    title: string;
     quantity: number;
     price: number;
 }

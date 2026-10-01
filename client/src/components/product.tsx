@@ -42,7 +42,7 @@ export const Product = ({product, updateRenderedProducts, addToCart}: ProductArg
                 <p className="price">{`$${product.price}`}</p>
                 <p className="quantity">{`${product.quantity} left in stock`}</p>
                 <div className="actions product-actions">
-                    <button className="add-to-cart" onClick={addToCart} disabled={noStock()}>Add to Cart</button>
+                    <button className="add-to-cart" onClick={() => addToCart(product["_id"])} disabled={noStock()}>Add to Cart</button>
                     <ActionButton 
                         className="edit" 
                         text="Edit" 
