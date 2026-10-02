@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { EditProductForm } from "./product-edit-form.js"
 import { sFetch } from "../helpers/sFetch"
 import type { ExistingProduct, AddToCartHandler, UpdateProductList, ProductField } from '../types/index.js'
+import { Togglable } from "./togglable.js"
 
 type ProductArgs = {
     product: ExistingProduct
@@ -54,7 +55,7 @@ export const Product = ({product, updateRenderedProducts, addToCart}: ProductArg
                     <span>X</span>
                 </button>
             </div>
-            {<EditProductForm liKey={product["_id"]} product={product} editAction={editProduct} cancelAction={toggleForm}/>}
+            {showEdit && <EditProductForm liKey={product["_id"]} product={product} editAction={editProduct} cancelAction={toggleForm}/>}
 
 
         </li>

@@ -44,6 +44,7 @@ export const EditProductForm = ({editAction, cancelAction, product, liKey}: Edit
 
     return (
         <div className="edit-form">
+        <h3>Edit Product</h3>
         <form onSubmit={handleSubmit}>
             <div className="input-group">
                 <label htmlFor="product-name">
@@ -65,7 +66,7 @@ export const EditProductForm = ({editAction, cancelAction, product, liKey}: Edit
                 value={formData.quantity}></input>
             </div>
             <div className="actions form-actions">
-                <button type="submit">Edit</button>
+                <button type="submit">Update</button>
                 <button type="button" onClick={cancelAction}>Cancel</button>
 
             </div>
