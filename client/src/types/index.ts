@@ -7,7 +7,7 @@ export type UpdateProductList = (action: Methods, {item, itemId }: {item?: Produ
 export type ProductField = {
   _id: string,
   title: string,
-  productId: string,
+  productId?: string,
   quantity: number,
   price: number
 }

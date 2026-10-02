@@ -11,7 +11,7 @@ export const Togglable = ({renderClosed, renderOpen}: ToggleProps) => {
 
     return (
         <>
-        {isVisible ? renderOpen(updateVisiblity) : renderClosed(updateVisiblity)}
+        {isVisible ? renderClosed(updateVisiblity) : renderClosed(updateVisiblity)}
         </>
     )
 }

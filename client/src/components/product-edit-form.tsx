@@ -1,12 +1,17 @@
-import type { NewProduct } from "../types"
-import { useState } from "react"
+import type { ExistingProduct } from "../types"
+import { useEffect, useState } from "react"
 interface EditProductForm {
     liKey: string,
-    editAction: (newProduct: NewProduct) => any
+    product: ExistingProduct,
+    editAction: (newProduct: ExistingProduct) => any
     cancelAction: () => any
 }
-export const EditProductForm = ({editAction, cancelAction, liKey}: EditProductForm) => {
-    const [formData, setFormData] = useState({"_id": '', title: '', price: 0, quantity: 0})
+
+//Quantity gets updated at top
+//If current quantity > top level quantity, update it
+
+export const EditProductForm = ({editAction, cancelAction, product, liKey}: EditProductForm) => {
+    const [formData, setFormData] = useState({"_id": '', title: product.title, price: product.price, quantity: product.quantity})
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value
@@ -29,6 +34,14 @@ export const EditProductForm = ({editAction, cancelAction, liKey}: EditProductFo
         cancelAction();
     }
 
+    useEffect(() => {
+        setFormData(prev => {
+            return prev.quantity > product.quantity ?
+            {...prev, quantity: product.quantity} :
+            prev
+        })
+    }, [product.quantity])
+
     return (
         <div className="edit-form">
         <form onSubmit={handleSubmit}>
@@ -36,19 +49,20 @@ export const EditProductForm = ({editAction, cancelAction, liKey}: EditProductFo
                 <label htmlFor="product-name">
                     Product Name:</label>
                 <input type="text" id="product-name" name="product-name"
-                aria-label="Product Name" onChange={handleChange}></input>
+                aria-label="Product Name" onChange={handleChange} value={formData.title}></input>
             </div>
             <div className="input-group">
                 <label htmlFor="product-price">
                     Price:</label>
                 <input type="number" id="product-price" name="product-price"
-                min="0" step="0.01" aria-label="Product Price" onChange={handleChange}></input>
+                min="0" step="0.01" aria-label="Product Price" onChange={handleChange} value={formData.price}></input>
             </div>
             <div className="input-group">
                 <label htmlFor="product-quantity">
                     Quantity:</label>
                 <input type="number" id="product-quantity" name="product-quantity"
-                min="0" aria-label="Product Quantity" onChange={handleChange}></input>
+                min="0" aria-label="Product Quantity" onChange={handleChange} 
+                value={formData.quantity}></input>
             </div>
             <div className="actions form-actions">
                 <button type="submit">Edit</button>

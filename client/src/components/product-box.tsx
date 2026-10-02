@@ -1,6 +1,6 @@
 import type { ReactElement } from "react"
 import { Product } from "./product"
-import type { NewProduct, AddToCartHandler, Methods, ProductField, UpdateProductList } from '../types/index.js'
+import type { ExistingProduct, AddToCartHandler, Methods, ProductField, UpdateProductList } from '../types/index.js'
 
 type ProductBoxArgs = {
     productList: ProductField[],

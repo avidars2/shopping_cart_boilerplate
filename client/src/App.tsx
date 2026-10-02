@@ -1,12 +1,12 @@
-import { useState, useEffect, type ReactElement } from 'react'
+import { useState, useEffect } from 'react'
 import { Banner } from './components/banner'
 import { ProductBox } from './components/product-box'
 import { ActionButton } from './components/action-button.js'
 // import {mockProducts} from '../mockData/data.js'
-import { sFetch } from './helpers/sFetch.js'
 import { AddProductForm } from './components/add-product-form.js'
-import type { NewProduct, AddToCartHandler, Methods, ProductField, UpdateProductList } from './types/index.js'
+import type { ExistingProduct, Methods, ProductField, BaseProduct } from './types/index.js'
 import { Togglable } from './components/togglable.js'
+import { getCart, getProducts, postCart, postCheckout, postProduct } from './services/fetch-products.js'
 
 //Change addformvisible to a togglable component
 // If there is a wrapper compnent, only the children will be re-rendered rather than the whole App
@@ -16,13 +16,10 @@ function App() {
   const [productList, setProductList] = useState<ProductField[]>([]);
   const [cartList, setCartList] = useState<ProductField[]>([]);
 
-  const addProduct = async ({title, price, quantity}: NewProduct) => {
-    const res = await sFetch("/api/products", "POST", {
-        title,
-        price,
-        quantity})
+  const addProduct = async ({title, price, quantity}: BaseProduct) => {
+    const data = await postProduct({title, price, quantity});
+    setProductList(productList.concat(data))
     
-    if (res.ok) setProductList(productList.concat(res.result));
   }
 
   const updateRenderedProducts = (action: Methods, {item, itemId }: {item?: ProductField, itemId: string}) => {
@@ -40,21 +37,23 @@ function App() {
   }
 
   useEffect(() => {
-    sFetch("/api/products").
-    then((res) => {
-      console.log(res)
-      if (res.ok) setProductList(res.result)
-    }).
-    catch((err) => console.log(err))
-  }, [])
+    const fetchProducts = async () => {
+      const data = await getProducts();
+      setProductList(data)
+    }
+    
+    const fetchCart = async () => {
+      const data = await getCart();
+      setCartList(data);
+    }
 
-  useEffect(() => {
-    sFetch("/api/cart").
-    then((res) => {
-      console.log(res)
-      if (res.ok) setCartList(res.result)
-    }).
-    catch((err) => console.log(err))
+    try {
+      fetchProducts()
+      fetchCart()
+    } catch (e) {
+      console.log(e);
+    }
+
   }, [])
 
   const parseActualItemId = (item: ProductField) => item.productId || item._id 
@@ -62,26 +61,16 @@ function App() {
   const replaceExistingItem = (newItem: ProductField, cart: ProductField[]) => { 
     cart.splice(cart.findIndex(toRemove => parseActualItemId(toRemove) === newItem._id), 1, newItem);
   }
-  const POSTCart = (productId: string) => {
-    sFetch("/api/add-to-cart", "POST", {
-      productId
-    }).
-    then((res) => console.log(`Success!`, res.result)).
-    catch((res) => console.log(`Cart update failed`, res));
-  }
 
   const POSTCheckout = () => {
-    sFetch("/api/checkout", "POST")
-    console.log('test')
+    postCheckout()
     setCartList([])
   }
   const updateCart = (item: ProductField, quantity: number) => {
     const NewCartItem = {...item, quantity: 1};
     const CartCopy = [...cartList];
-    //Find item in list
-    // If in there, update quantity of CartItem to match it + quantity
-    // Create copy of cartList, replace existing CartItem with new one
-    let cartItem = CartCopy.find(cartItem => parseActualItemId(cartItem) === item._id);
+
+    const cartItem = CartCopy.find(cartItem => parseActualItemId(cartItem) === item._id);
     if (cartItem) {
       NewCartItem.quantity = cartItem.quantity + quantity;
       replaceExistingItem(NewCartItem, CartCopy);
@@ -109,7 +98,8 @@ function App() {
     setCartList(() => updateCart(item, 1)) //Put new state here 
 
     //This should update App state, which re-renders the cart as well with the new state
-    POSTCart(item._id);
+    // POSTCart(item._id);
+    postCart(item._id)
   }
 
   return (

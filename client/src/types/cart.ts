@@ -5,7 +5,7 @@ export interface Cart  {
 
 export interface Item  {
     _id: string,
-    productId: string,
+    productId?: string,
     title: string;
     quantity: number;
     price: number;

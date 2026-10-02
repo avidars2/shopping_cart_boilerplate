@@ -1,11 +1,11 @@
 import { ActionButton } from "./action-button"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { EditProductForm } from "./product-edit-form.js"
 import { sFetch } from "../helpers/sFetch"
-import type { NewProduct, AddToCartHandler, UpdateProductList, ProductField } from '../types/index.js'
+import type { ExistingProduct, AddToCartHandler, UpdateProductList, ProductField } from '../types/index.js'
 
 type ProductArgs = {
-    product: NewProduct
+    product: ExistingProduct
     updateRenderedProducts: UpdateProductList
     addToCart: AddToCartHandler
 }
@@ -16,12 +16,13 @@ type ProductArgs = {
 // Refresh product list in memory
 
 //Same with updating it in memory
+
+//State changes for product...it should change state for "edit" form pre-fill
 export const Product = ({product, updateRenderedProducts, addToCart}: ProductArgs) => {
     const [showEdit, setShowEdit] = useState(false);
     const toggleForm = () => {setShowEdit(showEdit ? false: true)};
-
     const noStock = () => product.quantity === 0;
-    const editProduct = async (product: NewProduct) => {
+    const editProduct = async (product: ExistingProduct) => {
         const res = await sFetch(`/api/products/${product["_id"]}`, "PUT", {
             title: product.title,
             price:product.price,
@@ -42,7 +43,7 @@ export const Product = ({product, updateRenderedProducts, addToCart}: ProductArg
                 <p className="price">{`$${product.price}`}</p>
                 <p className="quantity">{`${product.quantity} left in stock`}</p>
                 <div className="actions product-actions">
-                    <button className="add-to-cart" onClick={() => addToCart(product["_id"])} disabled={noStock()}>Add to Cart</button>
+                    <button className="add-to-cart" onClick={() => {addToCart(product["_id"])}} disabled={noStock()}>Add to Cart</button>
                     <ActionButton 
                         className="edit" 
                         text="Edit" 
@@ -53,7 +54,7 @@ export const Product = ({product, updateRenderedProducts, addToCart}: ProductArg
                     <span>X</span>
                 </button>
             </div>
-            {showEdit && <EditProductForm liKey={product["_id"]} editAction={editProduct} cancelAction={toggleForm}/>}
+            {<EditProductForm liKey={product["_id"]} product={product} editAction={editProduct} cancelAction={toggleForm}/>}
 
 
         </li>

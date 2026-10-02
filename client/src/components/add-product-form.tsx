@@ -1,7 +1,7 @@
-import type { NewProduct } from "../types"
+import type { ExistingProduct } from "../types"
 import { useState } from "react"
 interface AddProductForm {
-    addAction: (newProduct: NewProduct) => any
+    addAction: (newProduct: ExistingProduct) => any
     cancelAction: () => any
 }
 
