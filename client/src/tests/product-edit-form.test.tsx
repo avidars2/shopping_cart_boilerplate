@@ -1,20 +1,19 @@
 import { vi, describe, expect, it } from "vitest"
 import { getByRole, render, screen} from "@testing-library/react"
 import { EditProductForm } from "../components/product-edit-form"
-import { Togglable } from "../components/togglable"
 import { ActionButton } from "../components/action-button"
 import userEvent from "@testing-library/user-event"
 import '@testing-library/jest-dom/vitest'
 import { useState } from "react"
 
-
+const MockProduct = {
+    "_id": "test",
+    "title": "hi",
+    "price": 10,
+    "quantity": 100
+}
 describe("Product-edit-form", () => {
-    const MockProduct = {
-        "_id": "test",
-        "title": "hi",
-        "price": 10,
-        "quantity": 100
-    }
+
     const ProductEditTestWrapper = () => {
         const [showEdit, setShowEdit] = useState(false);
         const toggleForm = () => {setShowEdit(showEdit ? false: true)};
@@ -99,3 +98,4 @@ describe("Product-edit-form", () => {
     })
 
 })
+
