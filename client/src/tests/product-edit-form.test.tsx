@@ -52,6 +52,36 @@ describe("Product-edit-form", () => {
 
     })
 
+    it("Shows 'Edit Product' heading", async () => {
+
+        const heading = await screen.findByRole("heading", {
+            "name": "Edit Product"
+        });
+
+        expect(heading).toBeVisible();
+
+    })
+
+    it("Shows 'Update' button", async () => {
+
+        const button = await screen.findByRole("button", {
+            "name": "Update"
+        });
+
+        expect(button).toBeVisible();
+
+    })
+
+    it("Shows 'Cancel' button", async () => {
+
+        const button = await screen.findByRole("button", {
+            "name": "Cancel"
+        });
+
+        expect(button).toBeVisible();
+
+    })
+
     it("Is not displayed when 'Cancel' button is clicked", async () => {
         const user = userEvent.setup();
 
@@ -67,4 +97,5 @@ describe("Product-edit-form", () => {
         expect(formLabel).not.toBeVisible();
 
     })
+
 })
